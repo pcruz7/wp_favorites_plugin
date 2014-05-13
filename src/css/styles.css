@@ -1,0 +1,88 @@
+/* Isolated favorites button */
+
+.my-favorite {
+    margin-top: 12px;
+}
+
+.my-favorite .favorite-post-toggle .favorite-post-on-button,
+.my-favorite .favorite-post-toggle .favorite-post-off-button {
+  display: block;
+  height: 24px;
+  line-height: 24px;
+  background: url(../images/stars24.png) no-repeat 0 0;
+  padding-left: 30px;
+}
+
+.favorite {
+  margin-top: 10px;
+}
+
+.my-favorite .favorite-post-toggle.size-12 .favorite-post-on-button,
+.my-favorite .favorite-post-toggle.size-12 .favorite-post-off-button {
+  height: 12px;
+  line-height: 12px;
+    background-image: url(../images/stars12.png);
+}
+
+.my-favorite .favorite-post-toggle.size-16 .favorite-post-on-button,
+.my-favorite .favorite-post-toggle.size-16 .favorite-post-off-button {
+  height: 16px;
+  line-height: 16px;
+    background-image: url(../images/stars16.png);
+}
+
+.my-favorite .favorite-post-toggle.size-20 .favorite-post-on-button,
+.my-favorite .favorite-post-toggle.size-20 .favorite-post-off-button {
+  height: 20px;
+  line-height: 20px;
+    background-image: url(../images/stars20.png);
+}
+
+.my-favorite .favorite-post-toggle.size-30 .favorite-post-on-button,
+.my-favorite .favorite-post-toggle.size-30 .favorite-post-off-button {
+  height: 30px;
+  line-height: 30px;
+    background-image: url(../images/stars30.png);
+}
+
+.my-favorite .favorite-post-toggle.size-46 .favorite-post-on-button,
+.my-favorite .favorite-post-toggle.size-46 .favorite-post-off-button {
+  height: 46px;
+  line-height: 46px;
+    background-image: url(../images/stars46.png);
+}
+
+.my-favorite .favorite-post-off .favorite-post-off-button {
+  background-position: left top;
+}
+
+.my-favorite .favorite-post-on .favorite-post-on-button {
+  background-position: left bottom;
+}
+
+.my-favorite .favorite-post-off .favorite-post-on-button,
+.my-favorite .favorite-post-on .favorite-post-off-button {
+    display: none;
+}
+
+/* Toggle button in favorites list */
+
+.my-favorite-post-list ul {
+    list-style: none;
+}
+
+.my-favorite-post-list .my-favorite {
+    float: left;
+    margin: -2px 0 0 0;
+    padding: 0;
+}
+
+.my-favorite-post-list .my-favorite .favorite-post-toggle .favorite-post-on-button,
+.my-favorite-post-list .my-favorite .favorite-post-toggle .favorite-post-off-button {
+    padding: 0 30px 0 0;
+}
+
+.my-favorite-post-list .my-favorite .favorite-post-on-button .label,
+.my-favorite-post-list .my-favorite .favorite-post-off-button .label {
+  display: none;
+}
