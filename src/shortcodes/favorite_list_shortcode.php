@@ -4,7 +4,7 @@ function favorite_list ($atts)
 {
   $atts = shortcode_atts(array(
     'paged'          => 1,
-    'posts_per_page' => 10,
+    'posts_per_page' => 5,
     'order'          => 'ASC',
     'orderby'        => 'post__in',
     'ajax'           => false,

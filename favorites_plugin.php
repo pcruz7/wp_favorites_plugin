@@ -2,7 +2,7 @@
 /*
 Plugin Name: Favorites Plugin
 Description: Use this plugin to save your favorite posts
-Author: Pedro,
+Author: Pedro
 Co-Author: Log
 Version: 1.0
 License: GPL2
@@ -37,6 +37,7 @@ if (!class_exists('FavoritesPlugin'))
         $interactor     = new FavoritesInteractor($repository, FavoritesPlugin::LISTNAME);
         self::$instance = new self($interactor);
       }
+      self::registerStyles();
       self::registerScripts();
       self::addActions();
 
@@ -59,24 +60,27 @@ if (!class_exists('FavoritesPlugin'))
 
     public function favoriteList()
     {
-      $posts    = $this->interactor->favoriteList($_POST);
-      $response = array();
+      $posts   = $this->interactor->favoriteList($_POST);
+      $results = array();
       foreach ($posts as $post) {
-        array_push($response, $post->toJson());
+        array_push($results, $post->toJson());
       }
+      $total = $this->interactor->getTotalFavorited();
+      $response = array(
+        'results'  => $results,
+        'page'     => (int) $_POST['paged'],
+        'per_page' => (int) $_POST['posts_per_page'],
+        'has_more' => (((int) $_POST['paged']) * ((int) $_POST['posts_per_page']) < $total),
+        'total'    => $total
+      );
       $this->response($response);
     }
 
     public function getById()
     {
-      $favorite  = $this->interactor->getFavoriteById($_POST);
-      if (isset($_POST['json'])) {
-        $favorite ? $this->response($favorite->toJson())
-                  : $this->response($favorite);
-      } else {
-        include(sprintf('%s/src/views/favorite_post_view.php', dirname(__FILE__)));
-        exit();
-      }
+      $favorite = $this->interactor->getFavoriteById($_POST);
+      $favorite ? $this->response($favorite->toJson())
+                : $this->response($favorite);
     }
 
     public function initList($user_login, $user)
@@ -84,13 +88,22 @@ if (!class_exists('FavoritesPlugin'))
       $this->interactor->initList($user);
     }
 
-    private static function registerScripts()
+    private static function registerStyles()
     {
       wp_register_style('favorites', plugins_url('src/css/styles.css', __FILE__), false, VERSION, 'screen');
       wp_enqueue_style('favorites');
+    }
 
-      wp_register_script('favorites', plugins_url('src/js/favorites.js', __FILE__), array('jquery'), VERSION, false);
+    private static function registerScripts()
+    {
+      wp_register_script('handlebars', plugins_url('src/js/handlebars.js', __FILE__), null, VERSION, false);
+      wp_register_script('handlebars-helpers', plugins_url('src/js/handlebars_helpers.js', __FILE__), array('handlebars'), VERSION, false);
+      wp_register_script('favorites', plugins_url('src/js/favorites.js', __FILE__), array('jquery', 'handlebars-helpers'), VERSION, false);
+
       wp_localize_script('favorites', 'FavoritesAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
+
+      wp_enqueue_script('handlebars');
+      wp_enqueue_script('handlebars-helpers');
       wp_enqueue_script('jquery');
       wp_enqueue_script('favorites');
     }

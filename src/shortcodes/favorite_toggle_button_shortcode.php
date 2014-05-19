@@ -20,6 +20,15 @@ function favorite_toggle_button_shortcode ($atts)
     'post_id' => get_the_ID(),
   ), $atts));
 
+  if (!isset($post_id)) {
+    $post_id = get_the_ID();
+  }
+
+  if (!$post_id) {
+    error_log( __FUNCTION__ . ' must be called within a post loop.' );
+    return;
+  }
+
   ob_start();
   favorite_toggle_button($post_id);
   $output = ob_get_clean();

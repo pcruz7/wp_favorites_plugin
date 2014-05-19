@@ -109,6 +109,17 @@ class TestAjaxinteractor extends WP_UnitTestCase
   }
 
   /**
+   * interactor getTotalFavorited()
+   */
+  public function testGetTotalFavorited()
+  {
+    $this->givenUserIsLoggedIn();
+    $posts = $this->givenPostsExist();
+    $total = $this->interactor->getTotalFavorited();
+    $this->assertEquals($total, count($posts), 'number of favorites should be ' . count($posts));
+  }
+
+  /**
    * interactor getFavoriteById()
    */
   public function testGetFavoriteByIdWithExistingPost()

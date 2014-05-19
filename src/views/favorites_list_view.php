@@ -1,12 +1,12 @@
-<div class="my-favorite-post-list<?php echo $class ?>"<?php echo $data_attr; ?> >
-<?php
-  $repository = new FavoritesRepository(new CookieHandler());
-  $interactor = new FavoritesInteractor($repository, FavoritesPlugin::LISTNAME);
-  $favorites  = $interactor->favoriteList($atts);
-?>
+<script id="favorite_post_template" type="text/x-handlebars-template">
+  <?php include('favorite_post_view_template.php'); ?>
+</script>
+<script type="text/x-handlebars-template" id="paging_template">
+  <?php include('paging_view_template.php'); ?>
+</script>
+<div id="my-favorite-list-data" class="my-favorite-post-list<?php echo $class ?>"<?php echo $data_attr; ?> >
   <ul class="my-favorite-post-list">
-  <?php foreach ($favorites as $favorite) { ?>
-  <?php include('favorite_post_view.php'); ?>
-  <?php } ?>
   </ul>
+  <div id="my-favorite-list-paging">
+  </div>
 </div>
