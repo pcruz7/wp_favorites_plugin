@@ -81,7 +81,7 @@ jQuery(document).ready(function ($) {
   };
 
   function bindPaging () {
-    $('.page').click(function () {
+    $('.my-favorite-page').click(function () {
       var page    = parseInt($(this).attr('value'));
           current = currentPage();
       if (page != current) {

@@ -1,14 +1,14 @@
 Handlebars.registerHelper('previous', function(page) {
   page = (page - 1 > 0) ? (page - 1) : 1;
   return new Handlebars.SafeString(
-    '<a href="#" value="' + page + '" class="page">&lt; Previous</a>'
+    '<a href="#" value="' + page + '" class="my-favorite-page">&lt; Previous</a>'
   );
 });
 
 Handlebars.registerHelper('next', function (has_more, page) {
   page = has_more ? page + 1 : page;
   return new Handlebars.SafeString(
-    '<a href="#" value="' + page + '" class="page">Next &gt;</a>'
+    '<a href="#" value="' + page + '" class="my-favorite-page">Next &gt;</a>'
   );
 });
 
