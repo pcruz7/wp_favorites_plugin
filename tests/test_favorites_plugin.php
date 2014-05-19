@@ -33,21 +33,31 @@ class TestFavoritesPlugin extends WP_UnitTestCase
       'wp_ajax_nopriv_get_by_id',
       'wp_login'
     );
+    $js = array(
+      'handlebars-helpers',
+      'handlebars',
+      'favorites'
+    );
     FavoritesPlugin::init();
-    $this->assertJsIsRegistered();
-    $this->assertJsIsEnqueued();
+    $this->assertJsAreRegistered($js);
+    $this->assertJsAreEnqueued($js);
     $this->assertActionsAreAdded($actions);
 	}
 
-  private function assertJsIsRegistered()
+  private function assertJsAreRegistered($js_files)
   {
-    $this->assertTrue(wp_script_is('favorites', 'registered'), 'favorites script should be registered');
+    foreach ($js_files as $js) {
+      $this->assertTrue(wp_script_is($js, 'registered'), $js . ' should be registered');
+    }
   }
 
-  private function assertJsIsEnqueued()
+  private function assertJsAreEnqueued($js_files)
   {
     $this->assertTrue(wp_script_is('jquery', 'enqueued'), 'jQuery should be enqueued');
-    $this->assertTrue(wp_script_is('favorites', 'enqueued'), 'favorites script should be enqueued');
+
+    foreach ($js_files as $js) {
+      $this->assertTrue(wp_script_is($js, 'registered'), $js . ' should be enqueued');
+    }
   }
 
   private function assertActionsAreAdded($actions)
@@ -102,11 +112,18 @@ class TestFavoritesPlugin extends WP_UnitTestCase
     $this->givenUserIsLoggedIn();
     $posts = $this->givenPostsExist();
     $this->givenFavoritedPosts($posts);
-    $this->onRequest(array('paged' => 1, 'posts_per_page' => 5, 'order' => 'ASC', 'orderby' => 'post__in'));
+    $this->onRequest(array('paged' => 1, 'posts_per_page' => 2, 'order' => 'ASC', 'orderby' => 'post__in'));
     $this->expectResponse(array(
-      array('id' => $posts[0], 'title' => 'Post title 1', 'permalink' => 'http://example.org/?p=' . $posts[0]),
-      array('id' => $posts[1], 'title' => 'Post title 2', 'permalink' => 'http://example.org/?p=' . $posts[1])
-    ));
+        'results' => array(
+          array('id' => $posts[0], 'title' => 'Post title 1', 'permalink' => 'http://example.org/?p=' . $posts[0]),
+          array('id' => $posts[1], 'title' => 'Post title 2', 'permalink' => 'http://example.org/?p=' . $posts[1])
+        ),
+        'page'     => 1,
+        'per_page' => 2,
+        'has_more' => false,
+        'total'    => 2
+      )
+    );
     $this->plugin->favoriteList();
   }
 
@@ -117,7 +134,7 @@ class TestFavoritesPlugin extends WP_UnitTestCase
   {
     $this->givenUserIsLoggedIn();
     $posts = $this->givenPostsExist();
-    $this->onRequest(array('post_id' => $posts[0], 'json' => true));
+    $this->onRequest(array('post_id' => $posts[0]));
     $this->expectResponse(array('id' => $posts[0], 'title' => 'Post title 1', 'permalink' => 'http://example.org/?p=' . $posts[0]));
     $this->plugin->getById();
   }
