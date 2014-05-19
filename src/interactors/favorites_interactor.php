@@ -50,6 +50,12 @@ if (!class_exists('FavoritesInteractor'))
                                   : false;
     }
 
+    public function getTotalFavorited()
+    {
+      $userId = $this->currentUser();
+      return count($this->repository->getFavoriteList($this->listname, $userId));
+    }
+
     public function initList(WP_User $user = null)
     {
       $this->repository->initFavoriteList($this->listname, $user->ID);
