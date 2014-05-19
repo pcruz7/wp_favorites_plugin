@@ -23,6 +23,14 @@ jQuery(document).ready(function ($) {
     return parseInt($('#my-favorite-list-data').attr('data-posts-per-page'));
   };
 
+  function getOrder () {
+    return $('#my-favorite-list-data').attr('data-order');
+  }
+
+  function getOrderBy () {
+    return $('#my-favorite-list-data').attr('data-orderby');
+  }
+
   function currentPage () {
     return $('.current').attr('value');
   };
@@ -102,8 +110,8 @@ jQuery(document).ready(function ($) {
       action         : 'favorite_list',
       paged          : page,
       posts_per_page : totalPerPage(),
-      order          : 'ASC',
-      orderby        : 'post__in'
+      order          : getOrder(),
+      orderby        : getOrderBy()
     };
     return $.post(FavoritesAjax.ajaxurl, request, function (data, textStatus, xhr) {
       showResults(data.results);
