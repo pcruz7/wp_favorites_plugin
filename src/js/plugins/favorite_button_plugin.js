@@ -4,7 +4,7 @@ jQuery(document).ready(function ($) {
       title: 'Add Favorite Button',
       image: url + '/../../images/star-icon.png',
       onclick: function(e) {
-        var target = e.target.offsetParent, content;
+        var target = e.target.offsetParent;
         $(target).toggleClass('mce-active');
 
         $(target).hasClass('mce-active') ? editor.insertContent('[favorite_button]')
