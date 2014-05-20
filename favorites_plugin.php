@@ -88,6 +88,25 @@ if (!class_exists('FavoritesPlugin'))
       $this->interactor->initList($user);
     }
 
+    public function initAdmin() {
+      if (current_user_can('edit_posts') && current_user_can('edit_pages')) {
+        add_filter('mce_buttons'         , array($this, 'mceButtons'));
+        add_filter('mce_external_plugins', array($this, 'mcePlugins'));
+      }
+    }
+
+    public function mceButtons ($buttons) {
+      array_push($buttons, 'separator', 'favorite_button_key');
+      array_push($buttons, 'separator', 'favorite_list_button_key');
+      return $buttons;
+    }
+
+    public function mcePlugins ($plugins) {
+      $plugins['favorite_button']      = plugins_url('src/js/plugins/favorite_button_plugin.js', __FILE__);
+      $plugins['favorite_list_button'] = plugins_url('src/js/plugins/favorite_list_button_plugin.js', __FILE__);
+      return $plugins;
+    }
+
     private static function registerStyles()
     {
       wp_register_style('favorites', plugins_url('src/css/styles.css', __FILE__), false, VERSION, 'screen');
@@ -96,8 +115,8 @@ if (!class_exists('FavoritesPlugin'))
 
     private static function registerScripts()
     {
-      wp_register_script('handlebars', plugins_url('src/js/handlebars.js', __FILE__), null, VERSION, false);
-      wp_register_script('handlebars-helpers', plugins_url('src/js/handlebars_helpers.js', __FILE__), array('handlebars'), VERSION, false);
+      wp_register_script('handlebars', plugins_url('src/js/libs/handlebars.js', __FILE__), null, VERSION, false);
+      wp_register_script('handlebars-helpers', plugins_url('src/js/handlebars_helpers/handlebars_helpers.js', __FILE__), array('handlebars'), VERSION, false);
       wp_register_script('favorites', plugins_url('src/js/favorites.js', __FILE__), array('jquery', 'handlebars-helpers'), VERSION, false);
 
       wp_localize_script('favorites', 'FavoritesAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
@@ -119,6 +138,7 @@ if (!class_exists('FavoritesPlugin'))
       add_action('wp_ajax_get_by_id'             , array(self::$instance, 'getById'));
       add_action('wp_ajax_nopriv_get_by_id'      , array(self::$instance, 'getById'));
       add_action('wp_login'                      , array(self::$instance, 'initList'), 20, 2);
+      add_action('admin_init'                    , array(self::$instance, 'initAdmin'));
     }
 
     private function response($output)

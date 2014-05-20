@@ -31,7 +31,8 @@ class TestFavoritesPlugin extends WP_UnitTestCase
       'wp_ajax_nopriv_favorite_list',
       'wp_ajax_get_by_id',
       'wp_ajax_nopriv_get_by_id',
-      'wp_login'
+      'wp_login',
+      'admin_init'
     );
     $js = array(
       'handlebars-helpers',
