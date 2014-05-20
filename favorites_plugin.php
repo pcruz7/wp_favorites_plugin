@@ -88,22 +88,24 @@ if (!class_exists('FavoritesPlugin'))
       $this->interactor->initList($user);
     }
 
-    public function initAdmin() {
+    public function initAdmin()
+    {
       if (current_user_can('edit_posts') && current_user_can('edit_pages')) {
         add_filter('mce_buttons'         , array($this, 'mceButtons'));
         add_filter('mce_external_plugins', array($this, 'mcePlugins'));
       }
     }
 
-    public function mceButtons ($buttons) {
+    public function mceButtons ($buttons)
+    {
       array_push($buttons, 'separator', 'favorite_button_key');
       array_push($buttons, 'separator', 'favorite_list_button_key');
       return $buttons;
     }
 
-    public function mcePlugins ($plugins) {
-      $plugins['favorite_button']      = plugins_url('src/js/plugins/favorite_button_plugin.js', __FILE__);
-      $plugins['favorite_list_button'] = plugins_url('src/js/plugins/favorite_list_button_plugin.js', __FILE__);
+    public function mcePlugins ($plugins)
+    {
+      $plugins['favorites_plugin'] = plugins_url('src/js/plugins/favorites_plugin.js', __FILE__);
       return $plugins;
     }
 
