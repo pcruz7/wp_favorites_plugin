@@ -12,8 +12,11 @@ define( 'VERSION', '1.0' );
 
 if (!class_exists('FavoritesPlugin'))
 {
-  require_once(sprintf('%s/src/repositories/favorites_repository.php', dirname(__FILE__)));
-  require_once(sprintf('%s/src/interactors/favorites_interactor.php', dirname(__FILE__)));
+  require_once(dirname(__FILE__) . '/src/repositories/favorites_repository.php');
+  require_once(dirname(__FILE__) . '/src/repositories/posts_repository.php');
+  require_once(dirname(__FILE__) . '/src/repositories/pages_repository.php');
+  require_once(dirname(__FILE__) . '/src/interactors/favorites_interactor.php');
+  require_once(dirname(__FILE__) . '/src/interactors/toggle_button_interactor.php');
 
   class FavoritesPlugin
   {
@@ -39,6 +42,7 @@ if (!class_exists('FavoritesPlugin'))
       }
       self::registerStyles();
       self::registerScripts();
+      self::addAjaxActions();
       self::addActions();
 
       return self::$instance;
@@ -88,6 +92,98 @@ if (!class_exists('FavoritesPlugin'))
       $this->interactor->initList($user);
     }
 
+    public function togglePost()
+    {
+      $response = $this->withButtonInteractor(function ($interactor, $id) {
+        return $interactor->togglePost($id) ? $id : -1;
+      }, new PostsRepository());
+      $this->response(array('toggled_id' => $response));
+    }
+
+    public function activatePost()
+    {
+      $response = $this->withButtonInteractor(function ($interactor, $id) {
+        return $interactor->activatePost($id) ? $id : -1;
+      }, new PostsRepository());
+      $this->response(array('activated_id' => $response));
+    }
+
+    public function deactivatePost()
+    {
+      $response = $this->withButtonInteractor(function ($interactor, $id) {
+        return $interactor->deactivatePost($id) ? $id : -1;
+      }, new PostsRepository());
+      $this->response(array('deactivated_id' => $response));
+    }
+
+    public function togglePageButton()
+    {
+      $response = $this->withButtonInteractor(function ($interactor, $id) {
+        return $interactor->togglePost($id) ? $id : -1;
+      }, new PagesRepository());
+      $this->response(array('toggled_id' => $response));
+    }
+
+    public function activatePageButton()
+    {
+      $response = $this->withButtonInteractor(function ($interactor, $id) {
+        return $interactor->activatePost($id) ? $id : -1;
+      }, new PagesRepository());
+      $this->response(array('activated_id' => $response));
+    }
+
+    public function deactivatePageButton()
+    {
+      $response = $this->withButtonInteractor(function ($interactor, $id) {
+        return $interactor->deactivatePost($id) ? $id : -1;
+      }, new PagesRepository());
+      $this->response(array('deactivated_id' => $response));
+    }
+
+    public function themeSettingsInit()
+    {
+      register_setting('theme_settings', 'theme_settings');
+    }
+
+    public function addSettingsPage()
+    {
+      add_menu_page(__('Favorites Panel'), __('Favorites Panel'), 'manage_options', 'settings', array($this, 'postsPanel'));
+      add_submenu_page('settings', __('Posts Panel'), __('Posts Panel'), 'manage_options', 'posts', array($this, 'postsPanel'));
+      add_submenu_page('settings', __('Pages Panel'), __('Pages Panel'), 'manage_options', 'pages', array($this, 'pagesPanel'));
+    }
+
+    public function postsPanel()
+    {
+      $repository = new PostsRepository();
+      $results = $repository->get(array('numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC'));
+      include(plugin_dir_path(__FILE__) . '/src/views/plugin_settings_view.php');
+    }
+
+    public function pagesPanel()
+    {
+      $repository = new PagesRepository();
+      $results = $repository->get(array('numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC'));
+      include(plugin_dir_path(__FILE__) . '/src/views/plugin_settings_view.php');
+    }
+
+    private function withButtonInteractor($do_action, $repository)
+    {
+      $toggler  = new ToggleButtonInteractor($repository);
+      $response = null;
+
+      if (count($_POST['ids']) == 1) {
+        $response = $do_action($toggler, (int) $_POST['ids']);
+      } else {
+        $response = array();
+        foreach ($_POST['ids'] as $id) {
+          $id = $do_action($toggler, (int) $id);
+          array_push($response, $id);
+        }
+      }
+
+      return $response;
+    }
+
     private static function registerStyles()
     {
       wp_register_style('favorites', plugins_url('src/css/styles.css', __FILE__), false, VERSION, 'screen');
@@ -99,17 +195,28 @@ if (!class_exists('FavoritesPlugin'))
       wp_register_script('handlebars', plugins_url('src/js/handlebars.js', __FILE__), null, VERSION, false);
       wp_register_script('handlebars-helpers', plugins_url('src/js/handlebars_helpers.js', __FILE__), array('handlebars'), VERSION, false);
       wp_register_script('favorites', plugins_url('src/js/favorites.js', __FILE__), array('jquery', 'handlebars-helpers'), VERSION, false);
+      wp_register_script('toggle', plugins_url('src/js/toggle.js', __FILE__), array('jquery'), VERSION, false);
 
       wp_localize_script('favorites', 'FavoritesAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
+      wp_localize_script('toggle', 'ToggleAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
 
       wp_enqueue_script('handlebars');
       wp_enqueue_script('handlebars-helpers');
       wp_enqueue_script('jquery');
       wp_enqueue_script('favorites');
+      wp_enqueue_script('toggle');
     }
 
     private static function addActions()
     {
+      add_action('wp_login'  , array(self::$instance, 'initList'), 20, 2);
+      add_action('admin_init', array(self::$instance, 'themeSettingsInit'));
+      add_action('admin_menu', array(self::$instance, 'addSettingsPage'));
+    }
+
+    private static function addAjaxActions()
+    {
+      # user's favorite list
       add_action('wp_ajax_is_favorite'           , array(self::$instance, 'isFavorite'));
       add_action('wp_ajax_nopriv_is_favorite'    , array(self::$instance, 'isFavorite'));
       add_action('wp_ajax_toggle_favorite'       , array(self::$instance, 'toggleFavorite'));
@@ -118,7 +225,16 @@ if (!class_exists('FavoritesPlugin'))
       add_action('wp_ajax_nopriv_favorite_list'  , array(self::$instance, 'favoriteList'));
       add_action('wp_ajax_get_by_id'             , array(self::$instance, 'getById'));
       add_action('wp_ajax_nopriv_get_by_id'      , array(self::$instance, 'getById'));
-      add_action('wp_login'                      , array(self::$instance, 'initList'), 20, 2);
+
+      # admin post control and favorite button toggle
+      add_action('wp_ajax_toggle_post'           , array(self::$instance, 'togglePost'));
+      add_action('wp_ajax_activate_post'         , array(self::$instance, 'activatePost'));
+      add_action('wp_ajax_deactivate_post'       , array(self::$instance, 'deactivatePost'));
+
+      # admin page control and favorite button toggle
+      add_action('wp_ajax_toggle_page_button'    , array(self::$instance, 'togglePageButton'));
+      add_action('wp_ajax_activate_page_button'  , array(self::$instance, 'activatePageButton'));
+      add_action('wp_ajax_deactivate_page_button', array(self::$instance, 'deactivatePageButton'));
     }
 
     private function response($output)
