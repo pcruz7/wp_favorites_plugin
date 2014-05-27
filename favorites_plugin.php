@@ -16,12 +16,14 @@ if (!class_exists('FavoritesPlugin'))
   require_once(dirname(__FILE__) . '/src/repositories/posts_repository.php');
   require_once(dirname(__FILE__) . '/src/repositories/pages_repository.php');
   require_once(dirname(__FILE__) . '/src/interactors/favorites_interactor.php');
-  require_once(dirname(__FILE__) . '/src/interactors/toggle_button_interactor.php');
+  require_once(dirname(__FILE__) . '/src/interactors/toggle_shortcode_interactor.php');
 
   class FavoritesPlugin
   {
     const SLUG     = 'wp-favorites-plugin';
     const LISTNAME = 'favorites-list';
+    const FAVORITE_BUTTON = '[favorite_button]';
+    const FAVORITE_REGEX  = '/\[favorite_button\]/';
 
     private $interactor;
     private static $instance = null;
@@ -94,48 +96,48 @@ if (!class_exists('FavoritesPlugin'))
 
     public function togglePost()
     {
-      $response = $this->withButtonInteractor(function ($interactor, $id) {
-        return $interactor->togglePost($id) ? $id : -1;
+      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
+        return $interactor->toggleShortcode($id) ? $id : -1;
       }, new PostsRepository());
       $this->response(array('toggled_id' => $response));
     }
 
     public function activatePost()
     {
-      $response = $this->withButtonInteractor(function ($interactor, $id) {
-        return $interactor->activatePost($id) ? $id : -1;
+      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
+        return $interactor->activateShortcode($id) ? $id : -1;
       }, new PostsRepository());
       $this->response(array('activated_id' => $response));
     }
 
     public function deactivatePost()
     {
-      $response = $this->withButtonInteractor(function ($interactor, $id) {
-        return $interactor->deactivatePost($id) ? $id : -1;
+      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
+        return $interactor->deactivateShortcode($id) ? $id : -1;
       }, new PostsRepository());
       $this->response(array('deactivated_id' => $response));
     }
 
     public function togglePageButton()
     {
-      $response = $this->withButtonInteractor(function ($interactor, $id) {
-        return $interactor->togglePost($id) ? $id : -1;
+      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
+        return $interactor->toggleShortcode($id) ? $id : -1;
       }, new PagesRepository());
       $this->response(array('toggled_id' => $response));
     }
 
     public function activatePageButton()
     {
-      $response = $this->withButtonInteractor(function ($interactor, $id) {
-        return $interactor->activatePost($id) ? $id : -1;
+      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
+        return $interactor->activateShortcode($id) ? $id : -1;
       }, new PagesRepository());
       $this->response(array('activated_id' => $response));
     }
 
     public function deactivatePageButton()
     {
-      $response = $this->withButtonInteractor(function ($interactor, $id) {
-        return $interactor->deactivatePost($id) ? $id : -1;
+      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
+        return $interactor->deactivateShortcode($id) ? $id : -1;
       }, new PagesRepository());
       $this->response(array('deactivated_id' => $response));
     }
@@ -156,6 +158,7 @@ if (!class_exists('FavoritesPlugin'))
     {
       $repository = new PostsRepository();
       $results = $repository->get(array('numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC'));
+      $include_listing = false;
       include(plugin_dir_path(__FILE__) . '/src/views/plugin_settings_view.php');
     }
 
@@ -163,12 +166,13 @@ if (!class_exists('FavoritesPlugin'))
     {
       $repository = new PagesRepository();
       $results = $repository->get(array('numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC'));
+      $include_listing = true;
       include(plugin_dir_path(__FILE__) . '/src/views/plugin_settings_view.php');
     }
 
-    private function withButtonInteractor($do_action, $repository)
+    private function withShortcodeInteractor($do_action, $repository)
     {
-      $toggler  = new ToggleButtonInteractor($repository);
+      $toggler  = new ToggleShortcodeInteractor($repository, self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
       $response = null;
 
       if (count($_POST['ids']) == 1) {

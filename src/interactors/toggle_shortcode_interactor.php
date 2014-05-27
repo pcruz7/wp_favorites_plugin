@@ -1,47 +1,48 @@
 <?php
 
-if (!class_exists('ToggleButtonInteractor'))
+if (!class_exists('ToggleShortcodeInteractor'))
 {
-  class ToggleButtonInteractor
+  class ToggleShortcodeInteractor
   {
-    const REGEX  = '/\[favorite_button\]/';
-    const BUTTON = '[favorite_button]';
-
     private $repository;
+    private $shortcode;
+    private $regex;
 
-    function __construct($repository)
+    function __construct($repository, $shortcode, $regex = '')
     {
       $this->repository = $repository;
+      $this->shortcode  = $shortcode;
+      $this->regex      = $regex;
     }
 
-    public function togglePost($postId = null)
+    public function toggleShortcode($postId = null)
     {
       $post = $this->getPost($postId);
       if (!$post) {
         return false;
       }
 
-      $this->hasButton($post) ? $this->removeFavoriteButton($post)
-                              : $this->addFavoriteButton($post);
+      $this->hasButton($post) ? $this->removeShortcode($post)
+                              : $this->addShortcode($post);
       return true;
     }
 
-    public function activatePost($postId = null)
+    public function activateShortcode($postId = null)
     {
       $post = $this->getPost($postId);
       if ($post && !$this->hasButton($post)) {
-        $this->addFavoriteButton($post);
+        $this->addShortcode($post);
         return true;
       } else {
         return false;
       }
     }
 
-    public function deactivatePost($postId = null)
+    public function deactivateShortcode($postId = null)
     {
       $post = $this->getPost($postId);
       if ($post && $this->hasButton($post)) {
-        $this->removeFavoriteButton($post);
+        $this->removeShortcode($post);
         return true;
       } else {
         return false;
@@ -64,18 +65,18 @@ if (!class_exists('ToggleButtonInteractor'))
 
     private function hasButton($post)
     {
-      return (preg_match(self::REGEX, $post->getContent(), $match) ? true : false);
+      return (preg_match($this->regex, $post->getContent(), $match) ? true : false);
     }
 
-    private function removeFavoriteButton($post)
+    private function removeShortcode($post)
     {
-      $content = preg_replace(self::REGEX, '', $post->getContent());
+      $content = preg_replace($this->regex, '', $post->getContent());
       $this->repository->setContent($content, $post->getId());
     }
 
-    private function addFavoriteButton($post)
+    private function addShortcode($post)
     {
-      $content = $post->getContent() . self::BUTTON;
+      $content = $post->getContent() . $this->shortcode;
       $this->repository->setContent($content, $post->getId());
     }
   }
