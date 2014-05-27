@@ -1,5 +1,7 @@
 <?php
 
+require_once(dirname(__FILE__) . '/../models/data_model.php');
+
 if (!class_exists('FavoritesInteractor'))
 {
   class FavoritesInteractor
@@ -75,7 +77,7 @@ if (!class_exists('FavoritesInteractor'))
     private function getPost($query)
     {
       $query->the_post();
-      return new PostData(get_the_id(), get_the_title(), get_the_permalink());
+      return new DataModel(get_the_id(), get_the_title(), get_the_permalink());
     }
 
     private function getFavorites($favorites, $request)
@@ -97,7 +99,7 @@ if (!class_exists('FavoritesInteractor'))
       $results = array();
       while ($query->have_posts()) {
         $query->the_post();
-        array_push($results, new PostData(get_the_ID(), get_the_title(), get_the_permalink()));
+        array_push($results, new DataModel(get_the_ID(), get_the_title(), get_the_permalink()));
       }
 
       return $results;
@@ -114,43 +116,6 @@ if (!class_exists('FavoritesInteractor'))
       array_unshift($favorites, $postID);
       $favorites = array_unique($favorites);
       $this->repository->saveFavoriteList($this->listname, $user, $favorites);
-    }
-  }
-}
-
-if (!class_exists('PostData'))
-{
-  class PostData
-  {
-    private $title;
-    private $permalink;
-    private $id;
-
-    function __construct($id, $title = '', $permalink = '')
-    {
-      $this->title     = $title;
-      $this->permalink = $permalink;
-      $this->id        = $id;
-    }
-
-    public function getId()
-    {
-      return $this->id;
-    }
-
-    public function getTitle()
-    {
-      return $this->title;
-    }
-
-    public function getPermalink()
-    {
-      return $this->permalink;
-    }
-
-    public function toJson()
-    {
-      return array('id' => $this->id, 'title' => $this->title, 'permalink' => $this->permalink);
     }
   }
 }
