@@ -28,6 +28,14 @@
   margin-left: 45%;
 }
 
+.list {
+  background: url(../images/list-icon.png) no-repeat 0 0;
+}
+
+.no-list {
+  background: url(../images/list-icon-filled.png) no-repeat 0 0;
+}
+
 .favorited-star {
   background: url(../images/star-icon.png) no-repeat 0 0;
 }
