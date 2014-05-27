@@ -96,9 +96,9 @@ if (!class_exists('FavoritesPlugin'))
 
     public function togglePost()
     {
-      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
-        return $interactor->toggleShortcode($id) ? $id : -1;
-      }, new PostsRepository());
+      $id = $_POST['ids'];
+      $interactor = new ToggleShortcodeInteractor(new PostsRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
+      $response = $interactor->toggleShortcode($id) ? $id : -1;
       $this->response(array('toggled_id' => $response));
     }
 
@@ -120,10 +120,11 @@ if (!class_exists('FavoritesPlugin'))
 
     public function togglePageButton()
     {
-      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
-        return $interactor->toggleShortcode($id) ? $id : -1;
-      }, new PagesRepository());
+      $id = $_POST['ids'];
+      $interactor = new ToggleShortcodeInteractor(new PagesRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
+      $response = $interactor->toggleShortcode($id) ? $id : -1;
       $this->response(array('toggled_id' => $response));
+
     }
 
     public function activatePageButton()
@@ -173,16 +174,10 @@ if (!class_exists('FavoritesPlugin'))
     private function withShortcodeInteractor($do_action, $repository)
     {
       $toggler  = new ToggleShortcodeInteractor($repository, self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
-      $response = null;
-
-      if (count($_POST['ids']) == 1) {
-        $response = $do_action($toggler, (int) $_POST['ids']);
-      } else {
-        $response = array();
-        foreach ($_POST['ids'] as $id) {
-          $id = $do_action($toggler, (int) $id);
-          array_push($response, $id);
-        }
+      $response = array();
+      foreach ($_POST['ids'] as $id) {
+        $id = $do_action($toggler, (int) $id);
+        array_push($response, $id);
       }
 
       return $response;

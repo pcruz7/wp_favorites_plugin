@@ -169,8 +169,8 @@ class TestFavoritesPlugin extends WP_UnitTestCase
   {
     $this->givenUserIsLoggedIn();
     $posts = $this->givenPostsExist();
-    $this->onRequest(array('ids' => $posts[0]));
-    $this->expectResponse(array('activated_id' => $posts[0]));
+    $this->onRequest(array('ids' => $posts));
+    $this->expectResponse(array('activated_id' => $posts));
     $this->plugin->activatePost();
   }
 
@@ -181,8 +181,8 @@ class TestFavoritesPlugin extends WP_UnitTestCase
   {
     $this->givenUserIsLoggedIn();
     $posts = $this->givenPostsExist();
-    $this->onRequest(array('ids' => $posts[0]));
-    $this->expectResponse(array('deactivated_id' => -1));
+    $this->onRequest(array('ids' => $posts));
+    $this->expectResponse(array('deactivated_id' => [-1, -1]));
     $this->plugin->deactivatePost();
   }
 
