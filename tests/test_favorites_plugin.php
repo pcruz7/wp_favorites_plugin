@@ -31,13 +31,24 @@ class TestFavoritesPlugin extends WP_UnitTestCase
       'wp_ajax_nopriv_favorite_list',
       'wp_ajax_get_by_id',
       'wp_ajax_nopriv_get_by_id',
+      'wp_ajax_toggle_post',
+      'wp_ajax_activate_post',
+      'wp_ajax_deactivate_post',
+      'wp_ajax_toggle_page_button',
+      'wp_ajax_activate_page_button',
+      'wp_ajax_deactivate_page_button',
+      'wp_ajax_toggle_page_list',
+      'wp_ajax_activate_page_list',
+      'wp_ajax_deactivate_page_list',
       'wp_login',
-      'admin_init'
+      'admin_init',
+      'admin_menu'
     );
     $js = array(
       'handlebars-helpers',
       'handlebars',
-      'favorites'
+      'favorites',
+      'toggle'
     );
     FavoritesPlugin::init();
     $this->assertJsAreRegistered($js);
@@ -116,8 +127,8 @@ class TestFavoritesPlugin extends WP_UnitTestCase
     $this->onRequest(array('paged' => 1, 'posts_per_page' => 2, 'order' => 'ASC', 'orderby' => 'post__in'));
     $this->expectResponse(array(
         'results' => array(
-          array('id' => $posts[0], 'title' => 'Post title 1', 'permalink' => 'http://example.org/?p=' . $posts[0]),
-          array('id' => $posts[1], 'title' => 'Post title 2', 'permalink' => 'http://example.org/?p=' . $posts[1])
+          array('id' => $posts[0], 'title' => 'Post title 1', 'permalink' => 'http://example.org/?p=' . $posts[0], 'content' => ''),
+          array('id' => $posts[1], 'title' => 'Post title 2', 'permalink' => 'http://example.org/?p=' . $posts[1], 'content' => '')
         ),
         'page'     => 1,
         'per_page' => 2,
@@ -136,8 +147,44 @@ class TestFavoritesPlugin extends WP_UnitTestCase
     $this->givenUserIsLoggedIn();
     $posts = $this->givenPostsExist();
     $this->onRequest(array('post_id' => $posts[0]));
-    $this->expectResponse(array('id' => $posts[0], 'title' => 'Post title 1', 'permalink' => 'http://example.org/?p=' . $posts[0]));
+    $this->expectResponse(array('id' => $posts[0], 'title' => 'Post title 1', 'permalink' => 'http://example.org/?p=' . $posts[0], 'content' => ''));
     $this->plugin->getById();
+  }
+
+  /**
+   * Plugin togglePost()
+   */
+  public function testTogglePost()
+  {
+    $this->givenUserIsLoggedIn();
+    $posts = $this->givenPostsExist();
+    $this->onRequest(array('ids' => $posts[0]));
+    $this->expectResponse(array('toggled_id' => $posts[0]));
+    $this->plugin->togglePost();
+  }
+
+  /**
+   * Plugin activatePost()
+   */
+  public function testActivatePost()
+  {
+    $this->givenUserIsLoggedIn();
+    $posts = $this->givenPostsExist();
+    $this->onRequest(array('ids' => $posts));
+    $this->expectResponse(array('activated_id' => $posts));
+    $this->plugin->activatePost();
+  }
+
+  /**
+   * Plugin deactivatePost()
+   */
+  public function testDeactivatePost($value='')
+  {
+    $this->givenUserIsLoggedIn();
+    $posts = $this->givenPostsExist();
+    $this->onRequest(array('ids' => $posts));
+    $this->expectResponse(array('deactivated_id' => [-1, -1]));
+    $this->plugin->deactivatePost();
   }
 
   private function expectResponse($response)
