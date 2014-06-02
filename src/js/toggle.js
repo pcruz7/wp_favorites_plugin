@@ -1,7 +1,7 @@
 jQuery(document).ready(function ($) {
   var do_action = {
-    'false' : function () {},
-    'add'   : function (ids) {
+    'false': function () {},
+    'add-button': function (ids) {
       var request = {action: 'activate_post', ids: ids};
       $.post(ToggleAjax.ajaxurl, request, function (data, textStatus, xhr) {
         bulkAction(data.activated_id, function (id) {
@@ -9,22 +9,66 @@ jQuery(document).ready(function ($) {
         });
       });
     },
-    'remove': function (ids) {
+    'remove-button': function (ids) {
       var request = {action: 'deactivate_post', ids: ids};
       $.post(ToggleAjax.ajaxurl, request, function (data, textStatus, xhr) {
         bulkAction(data.deactivated_id, function (id) {
           removeFavoriteButton('#favorite-star-' + id);
         });
       });
+    },
+    'add-list': function (ids) {
+      var request = {action: 'activate_page_list', ids: ids};
+      $.post(ToggleAjax.ajaxurl, request, function (data, textStatus, xhr) {
+        bulkAction(data.activated_id, function (id) {
+          addListing('#list-' + id);
+        });
+      });
+    },
+    'remove-list': function (ids) {
+      var request = {action: 'deactivate_page_list', ids: ids};
+      $.post(ToggleAjax.ajaxurl, request, function (data, textStatus, xhr) {
+        bulkAction(data.deactivated_id, function (id) {
+          removeListing('#list-' + id);
+        });
+      });
     }
   }
 
+  function removeListing (target) {
+    $(target).removeClass('list');
+    $(target).addClass('no-list');
+  }
+
+  function addListing (target) {
+    $(target).removeClass('no-list');
+    $(target).addClass('list');
+  }
+
+  function removeFavoriteButton (target) {
+    $(target).removeClass('favorited-star');
+    $(target).addClass('unfavorited-star');
+  }
+
+  function addFavoriteButton (target) {
+    $(target).removeClass('unfavorited-star');
+    $(target).addClass('favorited-star');
+  }
+
+  function getContainer (target) {
+    return $(target).children()[0];
+  }
+
   function bulkAction (posts, do_action) {
-    posts.forEach(function (post) {
-      if (post > -1) {
-        do_action(post);
-      }
-    });
+    if (posts instanceof Array) {
+      posts.forEach(function (post) {
+        if (post > -1) {
+          do_action(post);
+        }
+      });
+    } else if (posts > -1) {
+      do_action(posts);
+    }
   }
 
   function getSelected () {
@@ -39,25 +83,18 @@ jQuery(document).ready(function ($) {
     return ids;
   }
 
-  function toggleFavoriteButton (target, postIds) {
-    $.post(ToggleAjax.ajaxurl, {action: 'toggle_post', ids: postIds}, function (data, textStatus, xhr) {
+  function toggleFavoriteButton (target, postId) {
+    $.post(ToggleAjax.ajaxurl, {action: 'toggle_post', ids: postId}, function (data, textStatus, xhr) {
       $(target).hasClass('favorited-star') ? removeFavoriteButton(target)
                                            : addFavoriteButton(target);
     });
   }
 
-  function removeFavoriteButton (target) {
-    $(target).removeClass('favorited-star');
-    $(target).addClass('unfavorited-star');
-  }
-
-  function addFavoriteButton (target) {
-    $(target).removeClass('unfavorited-star');
-    $(target).addClass('favorited-star');
-  }
-
-  function getStarContainer (target) {
-    return $(target).children()[0];
+  function toggleListingButton (target, pageId) {
+    $.post(ToggleAjax.ajaxurl, {action: 'toggle_page_list', ids: pageId}, function (data, textStatus, xhr) {
+      $(target).hasClass('list') ? removeListing(target)
+                                 : addListing(target);
+    });
   }
 
   $('#doaction').click(function (ev) {
@@ -69,8 +106,14 @@ jQuery(document).ready(function ($) {
   });
 
   $('.favorites').click(function (ev) {
-    var target = getStarContainer(ev.currentTarget);
+    var target = getContainer(ev.currentTarget);
     var postId = $(target).attr('post-id');
     toggleFavoriteButton(target, postId);
+  });
+
+  $('.lists').click(function (ev) {
+    var target = getContainer(ev.currentTarget);
+    var pageId = $(target).attr('page-id');
+    toggleListingButton(target, pageId);
   });
 });
