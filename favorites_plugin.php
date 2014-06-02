@@ -145,13 +145,6 @@ if (!class_exists('FavoritesPlugin'))
       register_setting('theme_settings', 'theme_settings');
     }
 
-    public function addSettingsPage()
-    {
-      add_menu_page(__('Favorites Panel'), __('Favorites Panel'), 'manage_options', 'settings', array($this, 'postsPanel'));
-      add_submenu_page('settings', __('Posts Panel'), __('Posts Panel'), 'manage_options', 'posts', array($this, 'postsPanel'));
-      add_submenu_page('settings', __('Pages Panel'), __('Pages Panel'), 'manage_options', 'pages', array($this, 'pagesPanel'));
-    }
-
     public function postsPanel()
     {
       $repository = new PostsRepository();
@@ -202,6 +195,15 @@ if (!class_exists('FavoritesPlugin'))
       }
 
       return $response;
+    }
+
+    public function addSettingsPage()
+    {
+      if (current_user_can('edit_posts') && current_user_can('edit_pages')) {
+        add_menu_page(__('Favorites Panel'), __('Favorites Panel'), 'manage_options', 'settings', array($this, 'postsPanel'));
+        add_submenu_page('settings', __('Posts Panel'), __('Posts Panel'), 'manage_options', 'posts', array($this, 'postsPanel'));
+        add_submenu_page('settings', __('Pages Panel'), __('Pages Panel'), 'manage_options', 'pages', array($this, 'pagesPanel'));
+      }
     }
 
     public function initAdmin()
