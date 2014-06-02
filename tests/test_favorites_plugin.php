@@ -37,6 +37,9 @@ class TestFavoritesPlugin extends WP_UnitTestCase
       'wp_ajax_toggle_page_button',
       'wp_ajax_activate_page_button',
       'wp_ajax_deactivate_page_button',
+      'wp_ajax_toggle_page_list',
+      'wp_ajax_activate_page_list',
+      'wp_ajax_deactivate_page_list',
       'wp_login',
       'admin_init',
       'admin_menu'

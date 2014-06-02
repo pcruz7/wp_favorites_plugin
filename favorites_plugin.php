@@ -24,6 +24,7 @@ if (!class_exists('FavoritesPlugin'))
     const LISTNAME = 'favorites-list';
     const FAVORITE_BUTTON = '[favorite_button]';
     const FAVORITE_REGEX  = '/\[favorite_button\]/';
+    const LIST_REGEX  = '/\[favorite_list.*\]/';
 
     private $interactor;
     private static $instance = null;
@@ -96,51 +97,47 @@ if (!class_exists('FavoritesPlugin'))
 
     public function togglePost()
     {
-      $id = $_POST['ids'];
-      $interactor = new ToggleShortcodeInteractor(new PostsRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
-      $response = $interactor->toggleShortcode($id) ? $id : -1;
-      $this->response(array('toggled_id' => $response));
+      $this->toggleIt(new PostsRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
     }
 
     public function activatePost()
     {
-      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
-        return $interactor->activateShortcode($id) ? $id : -1;
-      }, new PostsRepository());
-      $this->response(array('activated_id' => $response));
+      $this->activateIt(new PostsRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
     }
 
     public function deactivatePost()
     {
-      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
-        return $interactor->deactivateShortcode($id) ? $id : -1;
-      }, new PostsRepository());
-      $this->response(array('deactivated_id' => $response));
+      $this->deactivateIt(new PostsRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
     }
 
     public function togglePageButton()
     {
-      $id = $_POST['ids'];
-      $interactor = new ToggleShortcodeInteractor(new PagesRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
-      $response = $interactor->toggleShortcode($id) ? $id : -1;
-      $this->response(array('toggled_id' => $response));
-
+      $this->toggleIt(new PagesRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
     }
 
     public function activatePageButton()
     {
-      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
-        return $interactor->activateShortcode($id) ? $id : -1;
-      }, new PagesRepository());
-      $this->response(array('activated_id' => $response));
+      $this->activateIt(new PagesRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
     }
 
     public function deactivatePageButton()
     {
-      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
-        return $interactor->deactivateShortcode($id) ? $id : -1;
-      }, new PagesRepository());
-      $this->response(array('deactivated_id' => $response));
+      $this->deactivateIt(new PagesRepository(), self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
+    }
+
+    public function togglePageList()
+    {
+      $this->toggleIt(new PagesRepository(), $this->genListShortcode(), self::LIST_REGEX);
+    }
+
+    public function activatePageList()
+    {
+      $this->activateIt(new PagesRepository(), $this->genListShortcode(), self::LIST_REGEX);
+    }
+
+    public function deactivatePageList()
+    {
+      $this->deactivateIt(new PagesRepository(), $this->genListShortcode(), self::LIST_REGEX);
     }
 
     public function themeSettingsInit()
@@ -171,9 +168,33 @@ if (!class_exists('FavoritesPlugin'))
       include(plugin_dir_path(__FILE__) . '/src/views/plugin_settings_view.php');
     }
 
-    private function withShortcodeInteractor($do_action, $repository)
+    private function toggleIt($repository, $shortcode, $regex)
     {
-      $toggler  = new ToggleShortcodeInteractor($repository, self::FAVORITE_BUTTON, self::FAVORITE_REGEX);
+      $id = $_POST['ids'];
+      $interactor = new ToggleShortcodeInteractor($repository, $shortcode, $regex);
+      $response = $interactor->toggleShortcode($id) ? $id : -1;
+      $this->response(array('toggled_id' => $response));
+    }
+
+    private function activateIt($repository, $shortcode, $regex)
+    {
+      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
+        return $interactor->activateShortcode($id) ? $id : -1;
+      }, $repository, $shortcode, $regex);
+      $this->response(array('activated_id' => $response));
+    }
+
+    private function deactivateIt($repository, $shortcode, $regex)
+    {
+      $response = $this->withShortcodeInteractor(function ($interactor, $id) {
+        return $interactor->deactivateShortcode($id) ? $id : -1;
+      }, $repository, $shortcode, $regex);
+      $this->response(array('deactivated_id' => $response));
+    }
+
+    private function withShortcodeInteractor($do_action, $repository, $shortcode, $regex)
+    {
+      $toggler  = new ToggleShortcodeInteractor($repository, $shortcode, $regex);
       $response = array();
       foreach ($_POST['ids'] as $id) {
         $id = $do_action($toggler, (int) $id);
@@ -181,6 +202,14 @@ if (!class_exists('FavoritesPlugin'))
       }
 
       return $response;
+    }
+
+    private function genListShortcode()
+    {
+      $widget    = new FavoritesWidget();
+      $settings  = $widget->get_settings();
+      $num_posts = $settings[2]['number'];
+      return '[favorite_list posts_per_page=' . $num_posts . ' order="ASC"]';
     }
 
     private static function registerStyles()
@@ -234,6 +263,9 @@ if (!class_exists('FavoritesPlugin'))
       add_action('wp_ajax_toggle_page_button'    , array(self::$instance, 'togglePageButton'));
       add_action('wp_ajax_activate_page_button'  , array(self::$instance, 'activatePageButton'));
       add_action('wp_ajax_deactivate_page_button', array(self::$instance, 'deactivatePageButton'));
+      add_action('wp_ajax_toggle_page_list'      , array(self::$instance, 'togglePageList'));
+      add_action('wp_ajax_activate_page_list'    , array(self::$instance, 'activatePageList'));
+      add_action('wp_ajax_deactivate_page_list'  , array(self::$instance, 'deactivatePageList'));
     }
 
     private function response($output)
