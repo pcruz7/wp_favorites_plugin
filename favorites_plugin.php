@@ -202,6 +202,7 @@ if (!class_exists('FavoritesPlugin'))
       }
 
       return $response;
+    }
 
     public function initAdmin()
     {

@@ -31,8 +31,6 @@ class TestFavoritesPlugin extends WP_UnitTestCase
       'wp_ajax_nopriv_favorite_list',
       'wp_ajax_get_by_id',
       'wp_ajax_nopriv_get_by_id',
-      'wp_login',
-      'admin_init'
       'wp_ajax_toggle_post',
       'wp_ajax_activate_post',
       'wp_ajax_deactivate_post',
