@@ -32,7 +32,7 @@ jQuery(document).ready(function ($) {
   }
 
   function currentPage () {
-    return $('.current').attr('value');
+    return $('.current').attr('value') || 1;
   };
 
   function numFavoritesDisplaying () {

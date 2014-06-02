@@ -1,3 +1,4 @@
+{{#compare total per_page operator=">"}}
 <div class="paging">
   <span class="previous">
     {{{previous page}}}
@@ -7,3 +8,4 @@
     {{{next has_more page}}}
   </span>
 </div>
+{{/compare}}
