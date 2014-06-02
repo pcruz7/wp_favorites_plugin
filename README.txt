@@ -7,21 +7,25 @@ Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Use this plugin to favorite your posts, whether you are a registered user or not.
+Use this plugin to favourite your posts, whether you are a registered user or not.
 
 == Description ==
 
-The plugin will bookmark your favorite posts for later read. This will work with a registered user.
-If the user is registered, but not logged in the posts will be saved within the cookies and then merged
+The plugin will bookmark your favourite posts for later read. This will work with a non registered user as well.
+If the user is registered, but not logged in, the posts will be saved within the cookies and then merged
 (and erased from the cookies) into the database upon log-in.
 
-Simply add the shortcode [favorite_button] within your post/page and the post/page will be favorite-enabled.
+There are two shortcodes available:
 
-Add the shortcode [favorite_list] to your page or post and the user's favorite list will appear. A few parameters
-can be passed to it:
- - posts_per_page - how many posts each favorite page will show;
- - order - ASCending or DESCending;
- - orderby - how will each posts be ordered by.
+1. [favorite_button] - allows the insertion of the button within the post/page enabling its favoriting;
+2. [favorite_list] - display the user's favourite list. A few parameters can be passed:
+  - posts_per_page - how many posts each favorite page will show;
+  - order - ASCending or DESCending;
+
+Two administrative panels are also available (but only for users able to edit posts and pages). These panels allow
+to easily add/remove/toggle the previously mentioned shortcodes to pages and posts.
+
+Lastly, a widget is also available which allows the configuration of the number of posts the list can display.
 
 == Installation ==
 
@@ -30,4 +34,5 @@ can be passed to it:
 
 == Usage ==
 
-Simply add the shortcode [favorite_button] to the posts that you'll want to be favorite-enabled.
+Simply add the shortcode [favorite_button] to the posts or pages that you'll want to enable favouriting or
+just use one of the available panels.
