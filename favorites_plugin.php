@@ -203,6 +203,7 @@ if (!class_exists('FavoritesPlugin'))
         add_menu_page(__('Favorites Panel'), __('Favorites Panel'), 'manage_options', 'settings', array($this, 'postsPanel'));
         add_submenu_page('settings', __('Posts Panel'), __('Posts Panel'), 'manage_options', 'posts', array($this, 'postsPanel'));
         add_submenu_page('settings', __('Pages Panel'), __('Pages Panel'), 'manage_options', 'pages', array($this, 'pagesPanel'));
+        remove_submenu_page('settings', 'settings');
       }
     }
 
