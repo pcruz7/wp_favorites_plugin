@@ -4,8 +4,12 @@
   <div class="alignleft actions bulkactions m10">
     <select name="action" id="action">
       <option value="false" selected="selected">Bulk Actions</option>
-      <option value="add">Add Button</option>
-      <option value="remove">Remove Button</option>
+      <option value="add-button">Add Favorite Button</option>
+      <option value="remove-button">Remove Favorite Button</option>
+      <?php if ($include_listing) { ?>
+      <option value="add-list">Add Favorite List</option>
+      <option value="remove-list">Remove Favorite List</option>
+      <?php } ?>
     </select>
     <input type="submit" name="" id="doaction" class="button action" value="Apply">
   </div>
@@ -23,6 +27,11 @@
       <th scope="col" id="favorites" class="manage-column num sortable desc" style="">
         <span class="p10">Enable Favoriting</span>
       </th>
+      <?php if ($include_listing) { ?>
+      <th scope="col" id="listing" class="manage-column num sortable desc" style="">
+        <span class="p10">Enable Listing</span>
+      </th>
+      <?php }?>
     </tr>
   </thead>
   <tfoot>
@@ -37,6 +46,11 @@
       <th scope="col" id="favorites" class="manage-column num sortable desc" style="">
         <span class="p10">Enable Favoriting</span>
       </th>
+      <?php if ($include_listing) { ?>
+      <th scope="col" id="listing" class="manage-column num sortable desc" style="">
+        <span class="p10">Enable Listing</span>
+      </th>
+      <?php }?>
     </tr>
   </tfoot>
   <thbody>
@@ -61,6 +75,19 @@
           <span id="favorite-star-<?php echo $result->getId(); ?>" post-id="<?php echo $result->getId(); ?>" title="favorited" class="star-holder <?php echo $class; ?>"></span>
         </a>
       </td>
+      <?php if ($include_listing) { ?>
+      <td>
+      <?php
+          $class   = 'no-list';
+          if (preg_match('/\[favorite_list.*\]/', $result->getContent(), $match)) {
+            $class = 'list';
+          }
+        ?>
+        <a href="#" class="lists">
+          <span id="list-<?php echo $result->getId(); ?>" page-id="<?php echo $result->getId(); ?>" title="listed" class="star-holder <?php echo $class; ?>"></span>
+        </a>
+      </td>
+      <?php }?>
     </tr>
   <?php } ?>
   </thbody>
